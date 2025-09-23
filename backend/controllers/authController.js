@@ -3,26 +3,38 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-  const { nombre, apellido, telefono, mail, contrasenia } = req.body;
+  const { nombre, apellido, telefono, mail, contrasenia, dni, fecha_nac } = req.body;
 
   try {
-    // Encriptar contraseña
+    // 1. Buscar el rol de "Paciente"
+    const rolRes = await pool.query("SELECT id_rol FROM rol WHERE nombre = $1", ['paciente']);
+    if (rolRes.rows.length === 0) return res.status(400).json({ error: "Rol 'Paciente' no existe" });
+    const id_rol = rolRes.rows[0].id_rol;
+
+    // 2. Hashear contraseña
     const hashedPassword = await bcrypt.hash(contrasenia, 10);
 
-    // Asignamos rol por defecto (ej: 4 → paciente)
-    const id_rol = 4;
-
-    const result = await pool.query(
-      `INSERT INTO usuario (nombre, apellido, telefono, mail, contrasenia, id_rol)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [nombre, apellido, telefono || null, mail, hashedPassword, id_rol]
+    // 3. Insertar en tabla usuario
+    const userRes = await pool.query(
+      "INSERT INTO usuario (nombre, apellido, telefono, mail, contrasenia, id_rol) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_usuario",
+      [nombre, apellido, telefono, mail, hashedPassword, id_rol]
     );
 
-    res.status(201).json({ msg: 'Usuario registrado', user: result.rows[0] });
+    const id_usuario = userRes.rows[0].id_usuario;
+
+    // 4. Insertar en tabla paciente
+    await pool.query(
+      "INSERT INTO paciente (id_paciente, fecha_nac, dni) VALUES ($1, $2, $3)",
+      [id_usuario, fecha_nac, dni]
+    );
+
+    res.status(201).json({ message: "Usuario registrado correctamente", id_usuario });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.login = async (req, res) => {
   const { mail, contrasenia } = req.body;
@@ -42,7 +54,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
+ 
 exports.me = async (req, res) => {
   try {
     const userId = req.user.id_usuario; // viene del middleware JWT

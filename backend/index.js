@@ -1,4 +1,5 @@
 // Importamos Express y CORS
+/*
 const express = require('express');
 const cors = require('cors');
 
@@ -38,6 +39,16 @@ app.use('/api/auth', require('./routes/authRoutes'));
 // ---------------------------
 
 // Iniciamos el servidor en el puerto especificado
+app.listen(port, () => {
+  console.log(`Servidor backend corriendo en http://localhost:${port}`);
+});
+*/
+
+const app = require('./app');
+
+// Puerto desde .env o 3001 por defecto
+const port = process.env.PORT || 3001;
+
 app.listen(port, () => {
   console.log(`Servidor backend corriendo en http://localhost:${port}`);
 });
