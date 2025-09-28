@@ -69,8 +69,11 @@ app.use('/api/seguimientos', require('./routes/seguimientoRoutes'));
 // ---------------------------
 // RUTAS DE MENÚ Y MENÚ-ROL
 // ---------------------------
-app.use('/api/menus', require('./routes/menuRoutes'));
+//app.use('/api/menus', require('./routes/menuRoutes'));
 app.use('/api/menu-rol', require('./routes/menuRolRoutes'));
+
+
+app.use("/api/menu", require("./routes/menuRoutes"));
 
 // ---------------------------
 // EXPORTAMOS APP PARA INDEX.JS O TESTS

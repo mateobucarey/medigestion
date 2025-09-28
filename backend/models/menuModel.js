@@ -1,16 +1,22 @@
 const pool = require('../config/db');
 
-async function obtenerMenus() {
-  const result = await pool.query('SELECT * FROM menu ORDER BY id_menu');
+async function obtenerMenusPorRol(id_rol) {
+  const result = await pool.query(`
+    SELECT m.id_menu, m.menombre, m.medireccion
+    FROM menu m
+    JOIN menu_rol mr ON m.id_menu = mr.id_menu
+    WHERE mr.id_rol = $1
+    ORDER BY m.id_menu
+  `, [id_rol]);
   return result.rows;
 }
 
-async function crearMenu({ nombre, dir_padre, dir_hijo }) {
+async function crearMenu({ menombre, medireccion }) {
   const result = await pool.query(
-    `INSERT INTO menu (nombre, dir_padre, dir_hijo)
-     VALUES ($1, $2, $3)
+    `INSERT INTO menu (menombre, medireccion)
+     VALUES ($1, $2)
      RETURNING *`,
-    [nombre, dir_padre, dir_hijo]
+    [menombre, medireccion]
   );
   return result.rows[0];
 }
@@ -24,7 +30,7 @@ async function eliminarMenu(id) {
 }
 
 module.exports = {
-  obtenerMenus,
+  obtenerMenusPorRol,
   crearMenu,
   eliminarMenu,
 };
