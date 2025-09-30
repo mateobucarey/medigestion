@@ -1,5 +1,5 @@
 const model = require('../models/menuModel');
-
+ 
 async function getMenus(req, res) {
   try {
     const id_rol = req.user.id_rol; // viene del middleware JWT

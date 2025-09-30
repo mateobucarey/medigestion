@@ -20,7 +20,7 @@ async function crearMenu({ menombre, medireccion }) {
   );
   return result.rows[0];
 }
-
+ 
 async function eliminarMenu(id) {
   const result = await pool.query(
     'DELETE FROM menu WHERE id_menu = $1 RETURNING *',

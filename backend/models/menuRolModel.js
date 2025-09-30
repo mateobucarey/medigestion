@@ -18,7 +18,7 @@ async function asignarMenuARol({ id_menu, id_rol }) {
   `, [id_menu, id_rol]);
   return result.rows[0];
 }
-
+ 
 async function eliminarMenuDeRol(id_menu, id_rol) {
   const result = await pool.query(`
     DELETE FROM menu_rol

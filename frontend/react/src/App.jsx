@@ -7,12 +7,18 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import MenuLateral from "./components/MenuLateral";
 
-// Layout que solo se muestra cuando hay sesión activa
+// ----------------------------------------
+// LayoutPrivado
+// Layout que se muestra solo cuando hay sesión activa
+// Incluye el menú lateral y el contenido principal
+// ----------------------------------------
 function LayoutPrivado({ children }) {
-  const { usuario } = useAuth();
+  const { usuario } = useAuth(); // Obtenemos usuario desde el contexto
 
+  // Si no hay usuario, no renderiza nada
   if (!usuario) return null;
 
+  // Renderiza el menú lateral y el contenido principal
   return (
     <div style={{ display: "flex" }}>
       <MenuLateral />
@@ -21,17 +27,26 @@ function LayoutPrivado({ children }) {
   );
 }
 
+// ----------------------------------------
+// Componente principal App
+// ----------------------------------------
 function App() {
   return (
+    // Proveedor de autenticación global
     <AuthProvider>
+      {/* Configuración del router */}
       <Router>
         <Routes>
 
-          {/* Páginas públicas */}
+          {/* ----------------------- */}
+          {/* Rutas públicas */}
+          {/* ----------------------- */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Páginas privadas con layout y menú */}
+          {/* ----------------------- */}
+          {/* Rutas privadas */}
+          {/* ----------------------- */}
           <Route
             path="/dashboard"
             element={
@@ -43,10 +58,14 @@ function App() {
             }
           />
 
+          {/* ----------------------- */}
           {/* Página de acceso denegado */}
+          {/* ----------------------- */}
           <Route path="/unauthorized" element={<p>No tenés permiso</p>} />
 
+          {/* ----------------------- */}
           {/* Redirección por defecto */}
+          {/* ----------------------- */}
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
