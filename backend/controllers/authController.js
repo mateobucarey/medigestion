@@ -3,32 +3,89 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
  
 exports.register = async (req, res) => {
-  const { nombre, apellido, telefono, mail, contrasenia, dni, fecha_nac } = req.body;
+  const {
+    nombre,
+    apellido,
+    telefono,
+    mail,
+    contrasenia,
+    dni,
+    fecha_nac,
+    obra_social_nombre,
+    plan_tipo,
+    nro_afiliado
+  } = req.body;
 
   try {
-    // 1. Buscar el rol de "Paciente"
+    // 1. Buscar rol paciente
     const rolRes = await pool.query("SELECT id_rol FROM rol WHERE nombre = $1", ['paciente']);
-    if (rolRes.rows.length === 0) return res.status(400).json({ error: "Rol 'Paciente' no existe" });
+    if (!rolRes.rows.length) return res.status(400).json({ error: "Rol 'Paciente' no existe" });
     const id_rol = rolRes.rows[0].id_rol;
 
     // 2. Hashear contraseña
     const hashedPassword = await bcrypt.hash(contrasenia, 10);
 
-    // 3. Insertar en tabla usuario
+    // 3. Insertar usuario
     const userRes = await pool.query(
-      "INSERT INTO usuario (nombre, apellido, telefono, mail, contrasenia, id_rol) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_usuario",
+      `INSERT INTO usuario (nombre, apellido, telefono, mail, contrasenia, id_rol)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id_usuario, nombre, apellido, mail, id_rol`,
       [nombre, apellido, telefono, mail, hashedPassword, id_rol]
     );
-
     const id_usuario = userRes.rows[0].id_usuario;
 
-    // 4. Insertar en tabla paciente
+    // 4. Insertar paciente
     await pool.query(
-      "INSERT INTO paciente (id_paciente, fecha_nac, dni) VALUES ($1, $2, $3)",
+      `INSERT INTO paciente (id_paciente, fecha_nac, dni) VALUES ($1, $2, $3)`,
       [id_usuario, fecha_nac, dni]
     );
 
-    res.status(201).json({ message: "Usuario registrado correctamente", id_usuario });
+    // 5. Insertar obra social (si no existe)
+    let obraSocialRes = await pool.query(
+      `SELECT id_obra_social FROM obra_social WHERE nombre = $1`,
+      [obra_social_nombre]
+    );
+    let id_obra_social;
+    if (obraSocialRes.rows.length === 0) {
+      const nuevaObraRes = await pool.query(
+        `INSERT INTO obra_social (nombre) VALUES ($1) RETURNING id_obra_social`,
+        [obra_social_nombre]
+      );
+      id_obra_social = nuevaObraRes.rows[0].id_obra_social;
+    } else {
+      id_obra_social = obraSocialRes.rows[0].id_obra_social;
+    }
+
+    // 6. Insertar plan vinculado a obra social (si no existe)
+    let planRes = await pool.query(
+      `SELECT id_plan FROM plan WHERE tipo = $1 AND id_obra_social = $2`,
+      [plan_tipo, id_obra_social]
+    );
+    let id_plan;
+    if (planRes.rows.length === 0) {
+      const nuevoPlanRes = await pool.query(
+        `INSERT INTO plan (tipo, id_obra_social) VALUES ($1,$2) RETURNING id_plan`,
+        [plan_tipo, id_obra_social]
+      );
+      id_plan = nuevoPlanRes.rows[0].id_plan;
+    } else {
+      id_plan = planRes.rows[0].id_plan;
+    }
+
+    // 7. Insertar paciente_plan
+    await pool.query(
+      `INSERT INTO paciente_plan (id_paciente, id_plan, nro_afiliado) VALUES ($1,$2,$3)`,
+      [id_usuario, id_plan, nro_afiliado]
+    );
+
+    res.status(201).json({
+      message: "Paciente registrado correctamente",
+      user: userRes.rows[0],
+      paciente: { id_paciente: id_usuario, dni, fecha_nac },
+      obra_social: { id_obra_social, nombre: obra_social_nombre },
+      plan: { id_plan, tipo: plan_tipo, id_obra_social },
+      paciente_plan: { id_paciente: id_usuario, id_plan, nro_afiliado }
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

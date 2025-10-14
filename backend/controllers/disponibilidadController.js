@@ -20,6 +20,17 @@ async function getPorProfesional(req, res) {
   }
 }
 
+async function getPorId(req, res) {
+  try {
+    const data = await disponibilidadModel.obtenerDisponibilidadPorId(req.params.id);
+    if (!data) return res.status(404).json({ mensaje: 'No encontrado' });
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensaje: 'Error al obtener disponibilidad' });
+  }
+}
+
 async function postDisponibilidad(req, res) {
   try {
     const nuevo = await disponibilidadModel.crearDisponibilidad(req.body);
@@ -27,6 +38,22 @@ async function postDisponibilidad(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ mensaje: 'Error al crear disponibilidad' });
+  }
+}
+
+// 🔹 NUEVA FUNCIÓN
+async function postMultiples(req, res) {
+  try {
+    const { disponibilidades } = req.body;
+    if (!Array.isArray(disponibilidades) || disponibilidades.length === 0) {
+      return res.status(400).json({ mensaje: 'Datos inválidos' });
+    }
+
+    const nuevos = await disponibilidadModel.crearMultiplesDisponibilidades(disponibilidades);
+    res.status(201).json(nuevos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensaje: 'Error al crear disponibilidades múltiples' });
   }
 }
 
@@ -55,7 +82,9 @@ async function deleteDisponibilidad(req, res) {
 module.exports = {
   getTodas,
   getPorProfesional,
+  getPorId,
   postDisponibilidad,
+  postMultiples, // ← agregado
   putDisponibilidad,
   deleteDisponibilidad,
 };

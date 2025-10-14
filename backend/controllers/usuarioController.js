@@ -26,14 +26,24 @@ async function getUsuarioPorId(req, res) {
 // POST /api/usuarios
 async function postUsuario(req, res) {
   try {
+    const { id_rol } = req.body;
+
+    if (![2,3].includes(id_rol)) 
+      return res.status(400).json({ mensaje: 'Solo se pueden crear usuarios con rol profesional o secretario' });
+
     const nuevoUsuario = await usuarioModel.crearUsuario(req.body);
-    res.status(201).json(nuevoUsuario);
+
+    res.status(201).json({
+      message: "Usuario creado correctamente",
+      user: nuevoUsuario
+    });
+
   } catch (error) {
-    console.error(error);
+    console.error("ERROR al crear usuario:", error);
     if (error.code === '23505') {
       res.status(400).json({ mensaje: 'El mail ya está registrado' });
     } else {
-      res.status(500).json({ mensaje: 'Error al crear usuario' });
+      res.status(500).json({ mensaje: error.message });
     }
   }
 }
@@ -41,12 +51,16 @@ async function postUsuario(req, res) {
 // PUT /api/usuarios/:id
 async function putUsuario(req, res) {
   try {
+    const { id_rol } = req.body;
+    if (![2,3].includes(id_rol)) 
+      return res.status(400).json({ mensaje: 'Solo se pueden editar usuarios con rol profesional o secretario' });
+
     const actualizado = await usuarioModel.actualizarUsuario(req.params.id, req.body);
     if (!actualizado) return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     res.json(actualizado);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error al actualizar usuario' });
+    res.status(500).json({ mensaje: error.message });
   }
 }
 
@@ -58,7 +72,7 @@ async function deleteUsuario(req, res) {
     res.json({ mensaje: 'Usuario eliminado correctamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error al eliminar usuario' });
+    res.status(500).json({ mensaje: error.message });
   }
 }
 

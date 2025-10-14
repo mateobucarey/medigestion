@@ -146,13 +146,20 @@ INSERT INTO rol (nombre) VALUES
 ('profesional'),
 ('secretario'),
 ('paciente');
-
+ 
 -- Insertar menú inicial y sus relaciones con roles
 
 -- Autenticación y registro
-INSERT INTO menu (menombre, medireccion) VALUES 
+INSERT INTO menu (menombre, medireccion) VALUES
+('Home', '/'), 
 ('Login', '/login'),
 ('Registro de Paciente', '/registro');
+
+-- Perfil Usuario
+INSERT INTO menu (menombre, medireccion) VALUES 
+('Mi Perfil', '/perfil'),
+('Editar Perfil', '/perfil'),
+('Dashboard', '/dashboard');
 
 -- Administración (Admin)
 INSERT INTO menu (menombre, medireccion) VALUES 
@@ -192,27 +199,16 @@ INSERT INTO menu (menombre, medireccion) VALUES
 ('Crear Seguimiento', '/seguimiento/nuevo/:id'),
 ('Ver Seguimiento', '/seguimiento/:id');
 
--- Perfil Usuario
-INSERT INTO menu (menombre, medireccion) VALUES 
-('Mi Perfil', '/perfil');
---('Editar Perfil', '/perfil');
-
-
---REVISAR EN MENUROL EL ID 24 EDITAR PERFIL QUE NO EXISTE EN MENU
-
 -- Asociar menús con roles
 
 -- ========== ADMIN ==========
 INSERT INTO menu_rol (id_menu, id_rol) VALUES
-(1, 1),  -- Login
-(2, 1),  -- Registro (solo por si querés probar sin login)
-
-(3, 1),  -- Usuarios
+(1, 1),  -- Home
 (4, 1),  -- Crear Usuario
 (5, 1),  -- Editar Usuario
-
 (23, 1), -- Mi Perfil
---(24, 1); -- Editar Perfil
+(24, 1), -- Editar Perfil
+(25, 1);  -- Dashboard
 
 -- ========== PROFESIONAL ==========
 INSERT INTO menu_rol (id_menu, id_rol) VALUES
@@ -239,7 +235,8 @@ INSERT INTO menu_rol (id_menu, id_rol) VALUES
 (22, 2), -- Ver Seguimiento
 
 (23, 2), -- Mi Perfil
---(24, 2); -- Editar Perfil
+(24, 2), -- Editar Perfil
+(25, 2);  -- Dashboard 
 
 -- ========== SECRETARIO ==========
 INSERT INTO menu_rol (id_menu, id_rol) VALUES
@@ -256,7 +253,8 @@ INSERT INTO menu_rol (id_menu, id_rol) VALUES
 (13, 3), -- Detalle Paciente
 
 (23, 3), -- Mi Perfil
---(24, 3); -- Editar Perfil
+(24, 3), -- Editar Perfil
+(25, 3);  -- Dashboard 
 
 -- ========== PACIENTE ==========
 INSERT INTO menu_rol (id_menu, id_rol) VALUES
@@ -278,4 +276,5 @@ INSERT INTO menu_rol (id_menu, id_rol) VALUES
 (22, 4), -- Ver Seguimiento
 
 (23, 4), -- Mi Perfil
---(24, 4); -- Editar Perfil
+(24, 4), -- Editar Perfil
+(25, 4);  -- Dashboard
