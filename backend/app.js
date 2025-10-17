@@ -46,6 +46,8 @@ app.use('/api/profesionales', require('./routes/profesionalRoutes'));
 app.use('/api/obras-sociales', require('./routes/obraSocialRoutes'));
 app.use('/api/planes', require('./routes/planRoutes'));
 app.use('/api/paciente-plan', require('./routes/pacientePlanRoutes'));
+// Admin routes
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // ---------------------------
 // RUTAS DE DISPONIBILIDAD Y TURNOS

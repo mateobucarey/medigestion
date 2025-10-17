@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/notaClinicaController');
 
-router.get('/:id_turno', controller.getNotas);
-router.post('/', controller.postNota);
-router.delete('/:id', controller.deleteNota);
+// Stub notas clinicas
+router.get('/', (req, res) => res.json({ success: true, data: [] }));
 
 module.exports = router;

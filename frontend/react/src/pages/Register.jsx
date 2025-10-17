@@ -1,58 +1,68 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import { registerPaciente } from '../services/pacienteService';
+import { listObras } from '../services/obraService';
+import { listPlanes } from '../services/planService';
 
 export default function Register() {
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [mail, setMail] = useState("");
-  const [contrasenia, setContrasenia] = useState("");
-  const [dni, setDni] = useState("");
-  const [fechaNac, setFechaNac] = useState("");
+  const [form, setForm] = useState({ nombre: '', apellido: '', mail: '', contrasenia: '', fecha_nac: '', dni: '', id_plan: '', nro_afiliado: '' });
+  const [obras, setObras] = useState([]);
+  const [planes, setPlanes] = useState([]);
 
-  // Nuevos campos para obra social y plan
-  const [obraSocial, setObraSocial] = useState("");
-  const [plan, setPlan] = useState("");
-  const [nroAfiliado, setNroAfiliado] = useState("");
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await axios.post("http://localhost:3001/api/auth/register", {
-        nombre,
-        apellido,
-        telefono,
-        mail,
-        contrasenia,
-        dni,
-        fecha_nac: fechaNac,
-        obra_social_nombre: obraSocial,
-        plan_tipo: plan,
-        nro_afiliado: nroAfiliado,
-      });
-
-      alert("Paciente creado: " + res.data.user.nombre);
-    } catch (err) {
-      alert(err.response?.data?.error || "Error desconocido");
+  useEffect(() => {
+    async function load() {
+      const res = await listObras();
+      if (res.success) setObras(res.data || []);
     }
-  };
+    load();
+  }, []);
+
+  async function onObraChange(obraId) {
+    const res = await listPlanes(obraId);
+    if (res.success) setPlanes(res.data || []);
+  }
+
+  async function submit(e) {
+    e.preventDefault();
+    const res = await registerPaciente(form);
+    if (res.success) {
+      alert('Registrado correctamente');
+      window.location.href = '/login';
+    } else {
+      alert(res.error || 'Error');
+    }
+  }
 
   return (
-    <form onSubmit={handleRegister}>
-      <input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
-      <input placeholder="Apellido" value={apellido} onChange={e => setApellido(e.target.value)} />
-      <input placeholder="Teléfono" value={telefono} onChange={e => setTelefono(e.target.value)} />
-      <input placeholder="Email" value={mail} onChange={e => setMail(e.target.value)} />
-      <input placeholder="DNI" value={dni} onChange={e => setDni(e.target.value)} />
-      <input type="date" value={fechaNac} onChange={e => setFechaNac(e.target.value)} />
+    <div style={{ padding: 20 }}>
+      <h2>Registro de paciente</h2>
+      <form onSubmit={submit}>
+        <input placeholder="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} />
+        <input placeholder="Apellido" value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} />
+        <input placeholder="Email" value={form.mail} onChange={(e) => setForm({ ...form, mail: e.target.value })} />
+        <input placeholder="Contraseña" type="password" value={form.contrasenia} onChange={(e) => setForm({ ...form, contrasenia: e.target.value })} />
+        <input placeholder="Fecha Nac (YYYY-MM-DD)" value={form.fecha_nac} onChange={(e) => setForm({ ...form, fecha_nac: e.target.value })} />
+        <input placeholder="DNI" value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value })} />
 
-      <input placeholder="Obra Social" value={obraSocial} onChange={e => setObraSocial(e.target.value)} />
-      <input placeholder="Plan" value={plan} onChange={e => setPlan(e.target.value)} />
-      <input placeholder="Número de Afiliado" value={nroAfiliado} onChange={e => setNroAfiliado(e.target.value)} />
+        <div>
+          <label>Obra social</label>
+          <select onChange={(e) => { setForm({ ...form, id_obra: e.target.value }); onObraChange(e.target.value); }}>
+            <option value="">-- Seleccionar --</option>
+            {obras.map(o => <option key={o.id_obra_social} value={o.id_obra_social}>{o.nombre}</option>)}
+          </select>
+        </div>
 
-      <input placeholder="Contraseña" type="password" value={contrasenia} onChange={e => setContrasenia(e.target.value)} />
-      <button type="submit">Registrarse</button>
-    </form>
+        <div>
+          <label>Plan</label>
+          <select value={form.id_plan} onChange={(e) => setForm({ ...form, id_plan: e.target.value })}>
+            <option value="">-- Seleccionar --</option>
+            {planes.map(p => <option key={p.id_plan} value={p.id_plan}>{p.tipo}</option>)}
+          </select>
+        </div>
+
+        <input placeholder="Nro afiliado" value={form.nro_afiliado} onChange={(e) => setForm({ ...form, nro_afiliado: e.target.value })} />
+
+        <button type="submit">Registrar</button>
+      </form>
+    </div>
   );
 }

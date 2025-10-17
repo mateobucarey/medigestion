@@ -1,49 +1,38 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-// Componente principal de Login
 export default function Login() {
-  // Estados para email y contraseña del formulario
-  const [mail, setMail] = useState("");
-  const [contrasenia, setContrasenia] = useState("");
+  const [mail, setMail] = useState('');
+  const [contrasenia, setContrasenia] = useState('');
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // Función que maneja el submit del formulario
-  const handleLogin = async (e) => {
-    e.preventDefault(); // Evita que el formulario recargue la página
-
-    try {
-      // Petición POST al backend con los datos ingresados
-      const res = await axios.post("http://localhost:3001/api/auth/login", {
-        mail,
-        contrasenia,
-      });
-
-      // Si es exitoso, guarda el token en localStorage
-      localStorage.setItem("token", res.data.token);
-
-      // Redirige al dashboard (o donde quieras)
-      window.location.href = "/dashboard";
-    } catch (err) {
-      // Muestra mensaje de error (si lo hay) o uno genérico
-      alert(err.response?.data?.error || "Error desconocido");
+  async function submit(e) {
+    e.preventDefault();
+    const res = await login({ mail, contrasenia });
+    if (res.success) {
+      // navigate within SPA so AuthContext state is preserved and ProtectedRoute won't redirect
+      navigate('/dashboard');
+    } else {
+      alert(res.error || 'Error');
     }
-  };
+  }
 
-  // Renderiza el formulario de login
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        placeholder="Email"
-        value={mail}
-        onChange={(e) => setMail(e.target.value)}
-      />
-      <input
-        placeholder="Contraseña"
-        type="password"
-        value={contrasenia}
-        onChange={(e) => setContrasenia(e.target.value)}
-      />
-      <button type="submit">Ingresar</button>
-    </form>
+    <div style={{ padding: 20 }}>
+      <h2>Iniciar sesión</h2>
+      <form onSubmit={submit}>
+        <div>
+          <label>Email</label>
+          <input value={mail} onChange={(e) => setMail(e.target.value)} />
+        </div>
+        <div>
+          <label>Contraseña</label>
+          <input type="password" value={contrasenia} onChange={(e) => setContrasenia(e.target.value)} />
+        </div>
+        <button type="submit">Ingresar</button>
+      </form>
+    </div>
   );
 }

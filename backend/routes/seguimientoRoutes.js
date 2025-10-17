@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/seguimientoController');
 
-router.get('/:id_paciente', controller.getSeguimientos);
-router.post('/', controller.postSeguimiento);
-router.delete('/:id', controller.deleteSeguimiento);
+// Stub seguimientos
+router.get('/', (req, res) => res.json({ success: true, data: [] }));
 
 module.exports = router;

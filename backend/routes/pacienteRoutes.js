@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const pacienteController = require('../controllers/pacienteController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-router.get('/', pacienteController.getPacientes);
-router.get('/:id', pacienteController.getPacientePorId);
-router.post('/', pacienteController.postPaciente);
-router.put('/:id', pacienteController.putPaciente);
-router.delete('/:id', pacienteController.deletePaciente);
+router.get('/', authMiddleware.optional, pacienteController.listPacientes);
+router.get('/:id', authMiddleware.optional, pacienteController.getPaciente);
+router.post('/', pacienteController.createPaciente); // registro de paciente (public)
 
 module.exports = router;

@@ -1,3 +1,16 @@
+Frontend básico para proyecto Medigestion
+
+Cómo instalar:
+
+- Ir a la carpeta `frontend/react`
+- Ejecutar `npm install`
+- Crear un archivo `.env` opcional con `VITE_API_BASE` si el backend no está en `http://localhost:3001/api`.
+- Ejecutar `npm run dev` para iniciar el dev server de Vite.
+
+Notas:
+- Login usa el endpoint `POST /api/auth/login` y guarda el token en `localStorage`.
+- Dashboard consulta `GET /api/auth/me` para obtener datos del usuario.
+- Esto es una base funcional sin estilos; sigue agregando vistas por rol.
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

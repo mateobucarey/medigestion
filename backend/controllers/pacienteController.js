@@ -1,66 +1,33 @@
-const pacienteModel = require('../models/pacienteModel');
+const pacienteService = require('../services/pacienteService');
 
-async function getPacientes(req, res) {
+async function createPaciente(req, res, next) {
   try {
-    const pacientes = await pacienteModel.obtenerPacientes();
-    res.json(pacientes);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: 'Error al obtener pacientes' });
+    const payload = req.body;
+    const result = await pacienteService.createPacienteFull(payload);
+    return res.status(201).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
   }
 }
 
-async function getPacientePorId(req, res) {
+async function listPacientes(req, res, next) {
   try {
-    const paciente = await pacienteModel.obtenerPacientePorId(req.params.id);
-    if (!paciente) return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    res.json(paciente);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: 'Error al obtener paciente' });
+    const rows = await pacienteService.listPacientes();
+    return res.json({ success: true, data: rows });
+  } catch (err) {
+    next(err);
   }
 }
 
-async function postPaciente(req, res) {
+async function getPaciente(req, res, next) {
   try {
-    const nuevoPaciente = await pacienteModel.crearPaciente(req.body);
-    res.status(201).json(nuevoPaciente);
-  } catch (error) {
-    console.error(error);
-    if (error.code === '23505') {
-      res.status(400).json({ mensaje: 'El DNI ya está registrado' });
-    } else {
-      res.status(500).json({ mensaje: 'Error al crear paciente' });
-    }
+    const id = parseInt(req.params.id, 10);
+    const data = await pacienteService.getPaciente(id);
+    if (!data) return res.status(404).json({ success: false, error: 'No encontrado' });
+    return res.json({ success: true, data });
+  } catch (err) {
+    next(err);
   }
 }
 
-async function putPaciente(req, res) {
-  try {
-    const actualizado = await pacienteModel.actualizarPaciente(req.params.id, req.body);
-    if (!actualizado) return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    res.json(actualizado);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: 'Error al actualizar paciente' });
-  }
-}
-
-async function deletePaciente(req, res) {
-  try {
-    const eliminado = await pacienteModel.eliminarPaciente(req.params.id);
-    if (!eliminado) return res.status(404).json({ mensaje: 'Paciente no encontrado' });
-    res.json({ mensaje: 'Paciente eliminado correctamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: 'Error al eliminar paciente' });
-  }
-}
-
-module.exports = {
-  getPacientes,
-  getPacientePorId,
-  postPaciente,
-  putPaciente,
-  deletePaciente,
-};
+module.exports = { createPaciente, listPacientes, getPaciente };

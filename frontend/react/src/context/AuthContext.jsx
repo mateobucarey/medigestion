@@ -1,68 +1,64 @@
-// Importación de hooks de React
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useState, useEffect } from 'react';
+import { login as apiLogin } from '../services/authService';
 
-// Importación de axios para hacer llamadas HTTP
-import axios from "axios";
+export const AuthContext = createContext();
 
-// Creamos el contexto de autenticación
-const AuthContext = createContext();
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
 
-// Componente proveedor del contexto que envuelve toda la app
-export const AuthProvider = ({ children }) => {
-  // Estado para guardar el usuario logueado
-  const [usuario, setUsuario] = useState(null);
-  // Estado para indicar si se está cargando la sesión
-  const [loading, setLoading] = useState(true);
-
-  // Función que obtiene los datos del usuario desde el backend si hay token
-  const getUser = async () => {
-    const token = localStorage.getItem("token");
-
-    // Si no hay token, no hay usuario
-    if (!token) {
-      setUsuario(null);
-      setLoading(false);
-      return;
-    }
-
+  function parseJwt(token) {
     try {
-      // Llamada a la API para obtener el usuario actual
-      const res = await axios.get("http://localhost:3001/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Guardamos los datos del usuario en el estado
-      setUsuario(res.data.user);
-    } catch (err) {
-      // Si hay error, se limpia la sesión y el token
-      console.error("Error al obtener usuario:", err);
-      localStorage.removeItem("token");
-      setUsuario(null);
-    } finally {
-      // Siempre desactiva el loading
-      setLoading(false);
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
     }
-  };
+  }
 
-  // Al cargar el componente, intenta obtener al usuario automáticamente
   useEffect(() => {
-    getUser();
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload) setUser({ id: payload.id, rol: payload.rol, token });
+      else setUser(null);
+    }
   }, []);
 
-  // Función para cerrar sesión
-  const logout = () => {
-    localStorage.removeItem("token"); // Elimina token
-    setUsuario(null);                 // Limpia estado del usuario
-    window.location.href = "/login"; // Redirige al login
-  };
+  async function login(creds) {
+    const res = await apiLogin(creds);
+    if (res.success && res.data.token) {
+      localStorage.setItem('token', res.data.token);
+      // set user object from returned user if present, else decode
+      if (res.data.user) {
+        // backend may return id_rol, normalize to 'rol'
+        const u = { ...res.data.user, token: res.data.token };
+        if (u.id_rol !== undefined && u.rol === undefined) u.rol = u.id_rol;
+        setUser(u);
+      } else {
+        const payload = parseJwt(res.data.token);
+        if (payload) setUser({ id: payload.id, rol: payload.rol, token: res.data.token });
+        else setUser({ token: res.data.token });
+      }
+    }
+    return res;
+  }
 
-  // Retorna el proveedor con los valores que queremos compartir
+  function logout() {
+    localStorage.removeItem('token');
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ usuario, loading, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-// Hook personalizado para acceder al contexto fácilmente
-export const useAuth = () => useContext(AuthContext);
+}

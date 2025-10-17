@@ -1,11 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/planController');
+const planController = require('../controllers/planController');
 
-router.get('/', controller.getPlanes);
-router.get('/:id', controller.getPlanPorId);
-router.post('/', controller.postPlan);
-router.put('/:id', controller.putPlan);
-router.delete('/:id', controller.deletePlan);
+router.get('/', planController.listPlans);
 
 module.exports = router;
