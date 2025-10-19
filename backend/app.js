@@ -52,9 +52,12 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 // ---------------------------
 // RUTAS DE DISPONIBILIDAD Y TURNOS
 // ---------------------------
-app.use('/api/disponibilidad', require('./routes/disponibilidadRoutes'));
 app.use('/api/turnos', require('./routes/turnoRoutes'));
 app.use('/api/turnos-periodicos', require('./routes/turnoPeriodicoRoutes'));
+
+// Profesional availability and accepted plans
+app.use('/api/disponibilidad', require('./routes/disponibilidadRoutes'));
+app.use('/api/profesional-plans', require('./routes/profesionalPlanRoutes'));
 
 // ---------------------------
 // RUTAS DE NOTAS Y DOCUMENTOS MÉDICOS

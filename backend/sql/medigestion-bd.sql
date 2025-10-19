@@ -131,3 +131,10 @@ INSERT INTO rol (nombre) VALUES
 ('profesional'),
 ('secretario'),
 ('paciente');
+
+
+CREATE TABLE profesional_plan (
+  id_profesional INT REFERENCES profesional(id_profesional),
+  id_plan INT REFERENCES plan(id_plan),
+  PRIMARY KEY (id_profesional, id_plan)
+);

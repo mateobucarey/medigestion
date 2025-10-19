@@ -16,6 +16,31 @@ export default function Dashboard() {
           <Link to="/admin">Administrar usuarios</Link>
         </p>
       )}
+      {user?.rol === 2 && (
+        <p>
+          <Link to="/disponibilidad">Mi disponibilidad</Link>
+        </p>
+      )}
+      {user?.rol === 2 && (
+        <p>
+          <Link to="/mis-planes">Mis obras/planes</Link>
+        </p>
+      )}
+      {user?.rol === 2 && (
+        <p>
+          <Link to="/mis-turnos">Mis turnos</Link>
+        </p>
+      )}
+      {user?.rol === 2 && (
+        <p>
+          <Link to="/notas">Notas clínicas</Link>
+        </p>
+      )}
+      {user?.rol === 2 && (
+        <p>
+          <Link to="/documentos">Documentos</Link>
+        </p>
+      )}
     </div>
   );
 }
