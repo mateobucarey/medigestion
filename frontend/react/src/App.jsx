@@ -12,12 +12,12 @@ import MisTurnos from './pages/MisTurnos';
 import ProfesionalPlanes from './pages/ProfesionalPlanes';
 import Home from './pages/Home';
 import Register from './pages/Register';
+import SecretariaTurnos from './pages/SecretariaTurnos';
+import SecretariaCalendario from './pages/SecretariaCalendario';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-function BuscarTurnos() {
-	return <div style={{ padding: 20 }}><h2>Buscar Turnos (próximamente)</h2></div>;
-}
+import BuscarTurnos from './pages/BuscarTurnos';
 
 export default function App() {
 	return (
@@ -49,6 +49,8 @@ function AppLayout() {
 				<Route path="/notas" element={<ProtectedRoute><NotasClinicas /></ProtectedRoute>} />
 				<Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
 				<Route path="/mis-turnos" element={<ProtectedRoute><MisTurnos /></ProtectedRoute>} />
+				<Route path="/secretaria/turnos" element={<ProtectedRoute><SecretariaTurnos /></ProtectedRoute>} />
+				<Route path="/secretaria/calendario" element={<ProtectedRoute><SecretariaCalendario /></ProtectedRoute>} />
 			</Routes>
 			{!hideLayout && <Footer />}
 		</>

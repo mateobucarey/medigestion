@@ -12,7 +12,8 @@ async function createPaciente(req, res, next) {
 
 async function listPacientes(req, res, next) {
   try {
-    const rows = await pacienteService.listPacientes();
+    const q = req.query.q || null;
+    const rows = await pacienteService.listPacientes(q);
     return res.json({ success: true, data: rows });
   } catch (err) {
     next(err);

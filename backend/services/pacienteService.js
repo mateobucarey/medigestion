@@ -27,8 +27,12 @@ async function listPacientes() {
   return pacienteModel.findAllPacientes();
 }
 
+async function searchPacientes(q) {
+  return pacienteModel.searchPacientes(q);
+}
+
 async function getPaciente(id_paciente) {
   return pacienteModel.findPacienteByUserId(id_paciente);
 }
 
-module.exports = { createPacienteFull, listPacientes, getPaciente };
+module.exports = { createPacienteFull, listPacientes, getPaciente, searchPacientes };

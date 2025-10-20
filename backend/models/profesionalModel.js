@@ -27,3 +27,23 @@ async function deleteProfesional(id_profesional) {
 
 module.exports = { createProfesional, updateProfesional, upsertProfesional, deleteProfesional };
 
+async function findAll() {
+  const q = `SELECT p.*, u.nombre, u.apellido FROM profesional p LEFT JOIN usuario u ON u.id_usuario = p.id_profesional`;
+  const res = await pool.query(q);
+  return res.rows;
+}
+
+async function findAllByEspecialidad(especialidad) {
+  const q = `SELECT p.*, u.nombre, u.apellido FROM profesional p LEFT JOIN usuario u ON u.id_usuario = p.id_profesional WHERE LOWER(p.especialidad) LIKE LOWER($1)`;
+  const res = await pool.query(q, [`%${especialidad}%`]);
+  return res.rows;
+}
+
+async function getUsuarioById(id_usuario) {
+  const q = 'SELECT nombre, apellido FROM usuario WHERE id_usuario = $1';
+  const res = await pool.query(q, [id_usuario]);
+  return res.rows[0];
+}
+
+module.exports = { createProfesional, updateProfesional, upsertProfesional, deleteProfesional, findAll, findAllByEspecialidad, getUsuarioById };
+

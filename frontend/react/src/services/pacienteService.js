@@ -5,6 +5,11 @@ export async function listPacientes() {
   return res.data;
 }
 
+export async function searchPacientes(q) {
+  const res = await api.get('/pacientes', { params: { q } });
+  return res.data;
+}
+
 export async function getPaciente(id) {
   const res = await api.get(`/pacientes/${id}`);
   return res.data;

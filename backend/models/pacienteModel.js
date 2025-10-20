@@ -16,4 +16,12 @@ async function findAllPacientes() {
   return res.rows;
 }
 
-module.exports = { createPaciente, findPacienteByUserId, findAllPacientes };
+async function searchPacientes(q) {
+  if (!q) return findAllPacientes();
+  const like = `%${q}%`;
+  const query = `SELECT p.*, u.nombre, u.apellido, u.mail FROM paciente p JOIN usuario u ON p.id_paciente = u.id_usuario WHERE u.nombre ILIKE $1 OR u.apellido ILIKE $1 OR u.mail ILIKE $1 OR p.dni ILIKE $1`;
+  const res = await pool.query(query, [like]);
+  return res.rows;
+}
+
+module.exports = { createPaciente, findPacienteByUserId, findAllPacientes, searchPacientes };
